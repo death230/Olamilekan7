@@ -1,0 +1,103 @@
+:root{
+  --bg-clr: #56ab2f;
+  --card-clr: #22161A;
+  --text-clr: #fdfdfd;
+  --partition-clr: #56ab2f;
+}
+
+.containero{
+  color: var(--text-clr);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  margin: 2em auto;
+  width: 60%;
+  background: var(--card-clr);
+  padding: 5em 2em;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.basic, .pro{
+  padding: 1em 4em;
+}
+
+.basic{
+  border-right: 1px solid var(--partition-clr);
+}
+
+.h2{
+  font-size: 2.25rem;
+  color:#a8e063
+}
+
+.h4{
+  font-size: 1.5rem;
+  margin-top: 1em;
+  
+  
+}
+.h3{
+    margin-top: 15px;
+  font-size: 1.8rem;
+  text-align: center; 
+  color: #22161A;
+}
+.h6{
+  font-size: 1rem;
+  color:#a8e063
+}
+
+.ul{
+  font-size: 1.125rem;
+  margin-top: 2em;
+  margin-left: 1em;
+  line-height: 2rem;
+}
+
+.basic-btn, .pro-btn{
+  width: 100%;
+  border: none;
+  padding: 0.8em 1.5em;
+  margin: 2em 0 0 0;
+  background: var(--bg-clr);
+  color: var(--text-clr);
+  font-size: 1.125rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.basic-btn{
+  background: transparent;
+  color: var(--bg-clr);
+ 
+}
+
+.basic-btn:hover{
+  background: var(--bg-clr);
+  color: #000;
+  
+}
+
+.pro-btn{
+  color:#000;
+}
+.pro-btn:hover{
+  background: var(--card-clr);
+  color: var(--bg-clr);
+}
+
+
+@media screen and (max-width: 900px) {
+  .containero{
+      flex-direction: column;
+      margin: 2em auto;
+      width: 90%;
+  }
+  .basic{
+      border-right:none;
+      border-bottom: 1px solid var(--partition-clr);
+  }
+}

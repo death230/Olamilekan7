@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<!-- Coding By CodingNepal - www.codingnepalweb.com -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game</title>
+
+    <style>
+        /* Importing Google font - Open Sans */
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap");
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Open Sans", sans-serif;
+}
+body {
+    display: flex;
+    padding: 0 10px;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+.container {
+    display: flex;
+    width: 850px;
+    gap: 70px;
+    padding: 60px 40px;
+    background: #fff;
+    border-radius: 10px;
+    align-items: flex-end;
+    justify-content: space-between;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+.hangman-box img {
+    user-select: none;
+    max-width: 270px;
+}
+.hangman-box h1 {
+    font-size: 1.45rem;
+    text-align: center;
+    margin-top: 20px;
+    text-transform: uppercase;
+}
+.game-box .word-display {
+    gap: 10px;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+.word-display .letter {
+    width: 28px;
+    font-size: 2rem;
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    border-bottom: 3px solid #000;
+}
+.word-display .letter.guessed {
+    margin: -40px 0 35px;
+    border-color: transparent;
+}
+.game-box h4 {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+.game-box h4 b {
+    font-weight: 600;
+}
+.game-box .guesses-text b {
+    color: #ff0000;
+}
+.game-box .keyboard {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+    justify-content: center;
+}
+:where(.game-modal, .keyboard) button {
+    color: #fff;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 4px;
+    text-transform: uppercase;
+    background: #5E63BA;
+}
+.keyboard button {
+    padding: 7px;
+    width: calc(100% / 9 - 5px);
+}
+.keyboard button[disabled] {
+    pointer-events: none;
+    opacity: 0.6;
+}
+:where(.game-modal, .keyboard) button:hover {
+    background: #8286c9;
+}
+.game-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 0 10px;
+    transition: opacity 0.4s ease;
+}
+.game-modal.show {
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 0.4s 0.4s ease;
+}
+.game-modal .content {
+    padding: 30px;
+    max-width: 420px;
+    width: 100%;
+    border-radius: 10px;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+.game-modal img {
+    max-width: 130px;
+    margin-bottom: 20px;
+}
+.game-modal img[src="images/victory.gif"] {
+    margin-left: -10px;
+}
+.game-modal h4 {
+    font-size: 1.53rem;
+}
+.game-modal p {
+    font-size: 1.15rem;
+    margin: 15px 0 30px;
+    font-weight: 500;
+}
+.game-modal p b {
+    color: #5E63BA;
+    font-weight: 600;
+}
+.game-modal button {
+    padding: 12px 23px;
+}
+
+@media (max-width: 782px) {
+    .container {
+        flex-direction: column;
+        padding: 30px 15px;
+        align-items: center;
+    }
+    .hangman-box img {
+        max-width: 200px;
+    }
+    .hangman-box h1 {
+        display: none;
+    }
+    .game-box h4 {
+        font-size: 1rem;
+    }
+    .word-display .letter {
+        margin-bottom: 35px;
+        font-size: 1.7rem;
+    }
+    .word-display .letter.guessed {
+        margin: -35px 0 25px;
+    }
+    .game-modal img {
+        max-width: 120px;
+    }
+    .game-modal h4 {
+        font-size: 1.45rem;
+    }
+    .game-modal p {
+        font-size: 1.1rem;
+    }
+    .game-modal button {
+        padding: 10px 18px;
+    }
+}
+    </style>
+  
+</head>
+<body>
+    <div class="game-modal">
+        <div class="content">
+            <img src="#" alt="gif">
+            <h4>Game Over!</h4>
+            <p>The correct word was: <b>rainbow</b></p>
+            <button class="play-again">Play Again</button>
+        </div>
+    </div>
+    <div class="container">
+        <div class="hangman-box">
+            <img src="#" draggable="false" alt="hangman-img">
+            <h1>Hangman Game</h1>
+            <a href="Home.php"><button>Exit</button></a>
+        </div>
+        <div class="game-box">
+            <ul class="word-display"></ul>
+            <h4 class="hint-text">Hint: <b></b></h4>
+            <h4 class="guesses-text">Incorrect guesses: <b></b></h4>
+            <div class="keyboard"></div>
+        </div>
+    </div>
+
+    <script defer>
+    const wordList = [
+    {
+        word: "guitar",
+        hint: "A musical instrument with strings."
+    },
+    {
+        word: "oxygen",
+        hint: "A colorless, odorless gas essential for life."
+    },
+    {
+        word: "mountain",
+        hint: "A large natural elevation of the Earth's surface."
+    },
+    {
+        word: "painting",
+        hint: "An art form using colors on a surface to create images or expression."
+    },
+    {
+        word: "astronomy",
+        hint: "The scientific study of celestial objects and phenomena."
+    },
+    {
+        word: "football",
+        hint: "A popular sport played with a spherical ball."
+    },
+    {
+        word: "chocolate",
+        hint: "A sweet treat made from cocoa beans."
+    },
+    {
+        word: "butterfly",
+        hint: "An insect with colorful wings and a slender body."
+    },
+    {
+        word: "history",
+        hint: "The study of past events and human civilization."
+    },
+    {
+        word: "pizza",
+        hint: "A savory dish consisting of a round, flattened base with toppings."
+    },
+    {
+        word: "jazz",
+        hint: "A genre of music characterized by improvisation and syncopation."
+    },
+    {
+        word: "camera",
+        hint: "A device used to capture and record images or videos."
+    },
+    {
+        word: "diamond",
+        hint: "A precious gemstone known for its brilliance and hardness."
+    },
+    {
+        word: "adventure",
+        hint: "An exciting or daring experience."
+    },
+    {
+        word: "science",
+        hint: "The systematic study of the structure and behavior of the physical and natural world."
+    },
+    {
+        word: "bicycle",
+        hint: "A human-powered vehicle with two wheels."
+    },
+    {
+        word: "sunset",
+        hint: "The daily disappearance of the sun below the horizon."
+    },
+    {
+        word: "coffee",
+        hint: "A popular caffeinated beverage made from roasted coffee beans."
+    },
+    {
+        word: "dance",
+        hint: "A rhythmic movement of the body often performed to music."
+    },
+    {
+        word: "galaxy",
+        hint: "A vast system of stars, gas, and dust held together by gravity."
+    },
+    {
+        word: "orchestra",
+        hint: "A large ensemble of musicians playing various instruments."
+    },
+    {
+        word: "volcano",
+        hint: "A mountain or hill with a vent through which lava, rock fragments, hot vapor, and gas are ejected."
+    },
+    {
+        word: "novel",
+        hint: "A long work of fiction, typically with a complex plot and characters."
+    },
+    {
+        word: "sculpture",
+        hint: "A three-dimensional art form created by shaping or combining materials."
+    },
+    {
+        word: "symphony",
+        hint: "A long musical composition for a full orchestra, typically in multiple movements."
+    },
+    {
+        word: "architecture",
+        hint: "The art and science of designing and constructing buildings."
+    },
+    {
+        word: "ballet",
+        hint: "A classical dance form characterized by precise and graceful movements."
+    },
+    {
+        word: "astronaut",
+        hint: "A person trained to travel and work in space."
+    },
+    {
+        word: "waterfall",
+        hint: "A cascade of water falling from a height."
+    },
+    {
+        word: "technology",
+        hint: "The application of scientific knowledge for practical purposes."
+    },
+    {
+        word: "rainbow",
+        hint: "A meteorological phenomenon that is caused by reflection, refraction, and dispersion of light."
+    },
+    {
+        word: "universe",
+        hint: "All existing matter, space, and time as a whole."
+    },
+    {
+        word: "piano",
+        hint: "A musical instrument played by pressing keys that cause hammers to strike strings."
+    },
+    {
+        word: "vacation",
+        hint: "A period of time devoted to pleasure, rest, or relaxation."
+    },
+    {
+        word: "rainforest",
+        hint: "A dense forest characterized by high rainfall and biodiversity."
+    },
+    {
+        word: "theater",
+        hint: "A building or outdoor area in which plays, movies, or other performances are staged."
+    },
+    {
+        word: "telephone",
+        hint: "A device used to transmit sound over long distances."
+    },
+    {
+        word: "language",
+        hint: "A system of communication consisting of words, gestures, and syntax."
+    },
+    {
+        word: "desert",
+        hint: "A barren or arid land with little or no precipitation."
+    },
+    {
+        word: "sunflower",
+        hint: "A tall plant with a large yellow flower head."
+    },
+    {
+        word: "fantasy",
+        hint: "A genre of imaginative fiction involving magic and supernatural elements."
+    },
+    {
+        word: "telescope",
+        hint: "An optical instrument used to view distant objects in space."
+    },
+    {
+        word: "breeze",
+        hint: "A gentle wind."
+    },
+    {
+        word: "oasis",
+        hint: "A fertile spot in a desert where water is found."
+    },
+    {
+        word: "photography",
+        hint: "The art, process, or practice of creating images by recording light or other electromagnetic radiation."
+    },
+    {
+        word: "safari",
+        hint: "An expedition or journey, typically to observe wildlife in their natural habitat."
+    },
+    {
+        word: "planet",
+        hint: "A celestial body that orbits a star and does not produce light of its own."
+    },
+    {
+        word: "river",
+        hint: "A large natural stream of water flowing in a channel to the sea, a lake, or another such stream."
+    },
+    {
+        word: "tropical",
+        hint: "Relating to or situated in the region between the Tropic of Cancer and the Tropic of Capricorn."
+    },
+    {
+        word: "mysterious",
+        hint: "Difficult or impossible to understand, explain, or identify."
+    },
+    {
+        word: "enigma",
+        hint: "Something that is mysterious, puzzling, or difficult to understand."
+    },
+    {
+        word: "paradox",
+        hint: "A statement or situation that contradicts itself or defies intuition."
+    },
+    {
+        word: "puzzle",
+        hint: "A game, toy, or problem designed to test ingenuity or knowledge."
+    },
+    {
+        word: "whisper",
+        hint: "To speak very softly or quietly, often in a secretive manner."
+    },
+    {
+        word: "shadow",
+        hint: "A dark area or shape produced by an object blocking the light."
+    },
+    {
+        word: "secret",
+        hint: "Something kept hidden or unknown to others."
+    },
+    {
+        word: "curiosity",
+        hint: "A strong desire to know or learn something."
+    },
+    {
+        word: "unpredictable",
+        hint: "Not able to be foreseen or known beforehand; uncertain."
+    },
+    {
+        word: "obfuscate",
+        hint: "To confuse or bewilder someone; to make something unclear or difficult to understand."
+    },
+    {
+        word: "unveil",
+        hint: "To make known or reveal something previously secret or unknown."
+    },
+    {
+        word: "illusion",
+        hint: "A false perception or belief; a deceptive appearance or impression."
+    },
+    {
+        word: "moonlight",
+        hint: "The light from the moon."
+    },
+    {
+        word: "vibrant",
+        hint: "Full of energy, brightness, and life."
+    },
+    {
+        word: "nostalgia",
+        hint: "A sentimental longing or wistful affection for the past."
+    },
+    {
+        word: "brilliant",
+        hint: "Exceptionally clever, talented, or impressive."
+    },
+];
+    </script>
+
+    <script defer>
+    const wordDisplay = document.querySelector(".word-display");
+const guessesText = document.querySelector(".guesses-text b");
+const keyboardDiv = document.querySelector(".keyboard");
+const hangmanImage = document.querySelector(".hangman-box img");
+const gameModal = document.querySelector(".game-modal");
+const playAgainBtn = gameModal.querySelector("button");
+
+// Initializing game variables
+let currentWord, correctLetters, wrongGuessCount;
+const maxGuesses = 6;
+
+const resetGame = () => {
+    // Ressetting game variables and UI elements
+    correctLetters = [];
+    wrongGuessCount = 0;
+    hangmanImage.src = "images/hangman-0.svg";
+    guessesText.innerText = `${wrongGuessCount} / ${maxGuesses}`;
+    wordDisplay.innerHTML = currentWord.split("").map(() => `<li class="letter"></li>`).join("");
+    keyboardDiv.querySelectorAll("button").forEach(btn => btn.disabled = false);
+    gameModal.classList.remove("show");
+}
+
+const getRandomWord = () => {
+    // Selecting a random word and hint from the wordList
+    const { word, hint } = wordList[Math.floor(Math.random() * wordList.length)];
+    currentWord = word; // Making currentWord as random word
+    document.querySelector(".hint-text b").innerText = hint;
+    resetGame();
+}
+
+const gameOver = (isVictory) => {
+    // After game complete.. showing modal with relevant details
+    const modalText = isVictory ? `You found the word:` : 'The correct word was:';
+    gameModal.querySelector("img").src = `images/${isVictory ? 'victory' : 'lost'}.gif`;
+    gameModal.querySelector("h4").innerText = isVictory ? 'Congrats!' : 'Game Over!';
+    gameModal.querySelector("p").innerHTML = `${modalText} <b>${currentWord}</b>`;
+    gameModal.classList.add("show");
+}
+
+const initGame = (button, clickedLetter) => {
+    // Checking if clickedLetter is exist on the currentWord
+    if(currentWord.includes(clickedLetter)) {
+        // Showing all correct letters on the word display
+        [...currentWord].forEach((letter, index) => {
+            if(letter === clickedLetter) {
+                correctLetters.push(letter);
+                wordDisplay.querySelectorAll("li")[index].innerText = letter;
+                wordDisplay.querySelectorAll("li")[index].classList.add("guessed");
+            }
+        });
+    } else {
+        // If clicked letter doesn't exist then update the wrongGuessCount and hangman image
+        wrongGuessCount++;
+        hangmanImage.src = `images/hangman-${wrongGuessCount}.svg`;
+    }
+    button.disabled = true; // Disabling the clicked button so user can't click again
+    guessesText.innerText = `${wrongGuessCount} / ${maxGuesses}`;
+
+    // Calling gameOver function if any of these condition meets
+    if(wrongGuessCount === maxGuesses) return gameOver(false);
+    if(correctLetters.length === currentWord.length) return gameOver(true);
+}
+
+// Creating keyboard buttons and adding event listeners
+for (let i = 97; i <= 122; i++) {
+    const button = document.createElement("button");
+    button.innerText = String.fromCharCode(i);
+    keyboardDiv.appendChild(button);
+    button.addEventListener("click", (e) => initGame(e.target, String.fromCharCode(i)));
+}
+
+getRandomWord();
+playAgainBtn.addEventListener("click", getRandomWord);
+    </script>
+</body>
+</html>
